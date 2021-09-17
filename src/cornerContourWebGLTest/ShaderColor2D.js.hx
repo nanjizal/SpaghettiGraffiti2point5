@@ -16,8 +16,9 @@ var fragmentString: String =
     'precision mediump float;'+
     'varying vec4 vcol;' +
     'void main(void) {' +
-        'vec4 color = vec4(vcol.rgb, vcol.a );' +
-        'gl_FragColor = color;' +
+      'vec4 color = vec4(vcol.rgb, 1. );' +
+      'color *= vcol.a; ' + 
+      'gl_FragColor = color;' +
     '}';
 // just used for docs
 enum abstract ShaderColor2D( String ){

@@ -13,6 +13,13 @@ Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
 };
+Std.random = function(x) {
+	if(x <= 0) {
+		return 0;
+	} else {
+		return Math.floor(Math.random() * x);
+	}
+};
 var cornerContour_Contour = function(pen_,endLine_) {
 	if(endLine_ == null) {
 		endLine_ = 0;
@@ -1978,6 +1985,7 @@ cornerContour_ContourGrad.prototype = {
 			var beta = -this.angle1 - Math.PI / 2;
 			var gamma = -this.angle1 - Math.PI / 2 + Math.PI;
 			var temp = [];
+			var clockwiseTemp = false;
 			var color = -1;
 			var sides = 36;
 			if(sides == null) {
@@ -2115,14 +2123,29 @@ cornerContour_ContourGrad.prototype = {
 				temp[p2++] = cx;
 				temp[p2++] = cy;
 				if(i != 0) {
-					var color_ = color;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
+					if(!clockwiseTemp) {
+						var color_ = color;
+						var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+						var c0 = col.colorAnti;
+						var c1 = col.colorClock;
+						var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
+						var r = ((c0 >> 16 & 255) / 255 + (c1 >> 16 & 255) / 255) / 2;
+						var g = ((c0 >> 8 & 255) / 255 + (c1 >> 8 & 255) / 255) / 2;
+						var b = ((c0 & 255) / 255 + (c1 & 255) / 255) / 2;
+						var half = Math.round(a * 255) << 24 | Math.round(r * 255) << 16 | Math.round(g * 255) << 8 | Math.round(b * 255);
+						this.pen.triangle2DGrad(ax,ay,bx,by,cx,cy,half,col.colorClock,col.colorClock);
 					} else {
-						col = this.twoGrad;
+						var color_1 = color;
+						var col1 = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+						var c01 = col1.colorAnti;
+						var c11 = col1.colorClock;
+						var a1 = ((c01 >> 24 & 255) / 255 + (c11 >> 24 & 255) / 255) / 2;
+						var r1 = ((c01 >> 16 & 255) / 255 + (c11 >> 16 & 255) / 255) / 2;
+						var g1 = ((c01 >> 8 & 255) / 255 + (c11 >> 8 & 255) / 255) / 2;
+						var b1 = ((c01 & 255) / 255 + (c11 & 255) / 255) / 2;
+						var half1 = Math.round(a1 * 255) << 24 | Math.round(r1 * 255) << 16 | Math.round(g1 * 255) << 8 | Math.round(b1 * 255);
+						this.pen.triangle2DGrad(ax,ay,bx,by,cx,cy,half1,col1.colorAnti,col1.colorAnti);
 					}
-					this.pen.triangle2DGrad(ax,ay,bx,by,cx,cy,col.colorClock,col.colorAnti,col.colorClock);
 				}
 				angle += step;
 				bx = cx;
@@ -2154,26 +2177,20 @@ cornerContour_ContourGrad.prototype = {
 			var by_ = this.dy;
 			var cx_ = this.ex;
 			var cy_ = this.ey;
-			var col;
-			if(this.twoGrad == null) {
-				col = this.getGradColors();
-			} else {
-				col = this.twoGrad;
-			}
-			this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+			var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+			var C = col.colorClock;
+			var A = col.colorAnti;
+			this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,C);
 			var ax_1 = this.dxPrev;
 			var ay_1 = this.dyPrev;
 			var bx_ = this.dx;
 			var by_ = this.dy;
 			var cx_ = this.exPrev;
 			var cy_ = this.eyPrev;
-			var col;
-			if(this.twoGrad == null) {
-				col = this.getGradColors();
-			} else {
-				col = this.twoGrad;
-			}
-			this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+			var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+			var C = col.colorClock;
+			var A = col.colorAnti;
+			this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,C);
 		} else {
 			if(this.count != 0) {
 				this.addQuads(clockWise,width_);
@@ -2194,26 +2211,20 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.dy;
 				var cx_ = this.ex;
 				var cy_ = this.ey;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
-				var ax_1 = this.dxPrev;
-				var ay_1 = this.dyPrev;
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,C);
+				var ax_1 = this.jx;
+				var ay_1 = this.jy;
 				var bx_ = this.dx;
 				var by_ = this.dy;
 				var cx_ = this.exPrev;
 				var cy_ = this.eyPrev;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,A);
 			} else {
 				if(clockWise && !this.lastClock) {
 					this.penultimateAX = this.jx;
@@ -2230,26 +2241,20 @@ cornerContour_ContourGrad.prototype = {
 					var by_ = this.dy;
 					var cx_ = this.ex;
 					var cy_ = this.ey;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,C);
 					var ax_1 = this.jx;
 					var ay_1 = this.jy;
 					var bx_ = this.dx;
 					var by_ = this.dy;
 					var cx_ = this.exPrev;
 					var cy_ = this.eyPrev;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,A);
 				}
 				if(clockWise && this.lastClock) {
 					this.penultimateAX = this.jx;
@@ -2266,26 +2271,20 @@ cornerContour_ContourGrad.prototype = {
 					var by_ = this.dy;
 					var cx_ = this.ex;
 					var cy_ = this.ey;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,C);
 					var ax_1 = this.jx;
 					var ay_1 = this.jy;
 					var bx_ = this.dx;
 					var by_ = this.dy;
 					var cx_ = this.exPrev;
 					var cy_ = this.eyPrev;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,A);
 				}
 				if(!clockWise && !this.lastClock) {
 					this.penultimateCX = this.dx;
@@ -2302,26 +2301,20 @@ cornerContour_ContourGrad.prototype = {
 					var by_ = this.dy;
 					var cx_ = this.jx;
 					var cy_ = this.jy;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorAnti,col.colorClock,col.colorClock);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,A);
 					var ax_1 = this.dxPrev;
 					var ay_1 = this.dyPrev;
 					var bx_ = this.dx;
 					var by_ = this.dy;
 					var cx_ = this.ex;
 					var cy_ = this.ey;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorAnti,col.colorClock,col.colorAnti);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,C);
 				}
 				if(!clockWise && this.lastClock) {
 					this.penultimateAX = this.dxPrev;
@@ -2338,26 +2331,20 @@ cornerContour_ContourGrad.prototype = {
 					var by_ = this.dy;
 					var cx_ = this.ex;
 					var cy_ = this.ey;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorAnti,col.colorClock,col.colorClock);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,A,A,C);
 					var ax_1 = this.dxPrev;
 					var ay_1 = this.dyPrev;
 					var bx_ = this.jx;
 					var by_ = this.jy;
 					var cx_ = this.ex;
 					var cy_ = this.ey;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,col.colorAnti,col.colorClock,col.colorAnti);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_1,ay_1,bx_,by_,cx_,cy_,C,A,C);
 				}
 			}
 		}
@@ -2386,12 +2373,7 @@ cornerContour_ContourGrad.prototype = {
 					edgePoly[p2++] = cy;
 					if(i != 0) {
 						if(!clockWise) {
-							var col;
-							if(this.twoGrad == null) {
-								col = this.getGradColors();
-							} else {
-								col = this.twoGrad;
-							}
+							var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 							var c0 = col.colorAnti;
 							var c1 = col.colorClock;
 							var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
@@ -2401,12 +2383,7 @@ cornerContour_ContourGrad.prototype = {
 							var half = Math.round(a * 255) << 24 | Math.round(r * 255) << 16 | Math.round(g * 255) << 8 | Math.round(b * 255);
 							this.pen.triangle2DGrad(ax_,ay_,bx,by,cx,cy,half,col.colorClock,col.colorClock);
 						} else {
-							var col1;
-							if(this.twoGrad == null) {
-								col1 = this.getGradColors();
-							} else {
-								col1 = this.twoGrad;
-							}
+							var col1 = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 							var c01 = col1.colorAnti;
 							var c11 = col1.colorClock;
 							var a1 = ((c01 >> 24 & 255) / 255 + (c11 >> 24 & 255) / 255) / 2;
@@ -2445,12 +2422,7 @@ cornerContour_ContourGrad.prototype = {
 					edgePoly[p2++] = cy;
 					if(i != 0) {
 						if(!clockWise) {
-							var col;
-							if(this.twoGrad == null) {
-								col = this.getGradColors();
-							} else {
-								col = this.twoGrad;
-							}
+							var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 							var c0 = col.colorAnti;
 							var c1 = col.colorClock;
 							var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
@@ -2460,12 +2432,7 @@ cornerContour_ContourGrad.prototype = {
 							var half = Math.round(a * 255) << 24 | Math.round(r * 255) << 16 | Math.round(g * 255) << 8 | Math.round(b * 255);
 							this.pen.triangle2DGrad(ax_,ay_,bx,by,cx,cy,half,col.colorClock,col.colorClock);
 						} else {
-							var col1;
-							if(this.twoGrad == null) {
-								col1 = this.getGradColors();
-							} else {
-								col1 = this.twoGrad;
-							}
+							var col1 = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 							var c01 = col1.colorAnti;
 							var c11 = col1.colorClock;
 							var a1 = ((c01 >> 24 & 255) / 255 + (c11 >> 24 & 255) / 255) / 2;
@@ -2490,13 +2457,10 @@ cornerContour_ContourGrad.prototype = {
 					var by_ = this.eyPrev;
 					var cx_ = this.ax;
 					var cy_ = this.ay;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorAnti,col.colorAnti,col.colorClock);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,A,A,C);
 				} else {
 					var ax_ = this.exOld;
 					var ay_ = this.eyOld;
@@ -2504,13 +2468,10 @@ cornerContour_ContourGrad.prototype = {
 					var by_ = this.dyPrev;
 					var cx_ = this.ax;
 					var cy_ = this.ay;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var C = col.colorClock;
+					var A = col.colorAnti;
+					this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 				}
 			} else if(clockWise) {
 				var ax_ = this.dxOld;
@@ -2519,13 +2480,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.eyPrev;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorAnti,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,A,A,C);
 			} else {
 				var ax_ = this.exOld;
 				var ay_ = this.eyOld;
@@ -2533,13 +2491,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.dyPrev;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 			}
 		}
 		this.kax = this.dxPrev;
@@ -2558,12 +2513,7 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.dyOld;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 				var c0 = col.colorAnti;
 				var c1 = col.colorClock;
 				var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
@@ -2578,12 +2528,7 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.eyPrev;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 				var c0 = col.colorAnti;
 				var c1 = col.colorClock;
 				var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
@@ -2599,12 +2544,7 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.eyOld;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 				var c0 = col.colorAnti;
 				var c1 = col.colorClock;
 				var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
@@ -2619,12 +2559,7 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.dyPrev;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
 				var c0 = col.colorAnti;
 				var c1 = col.colorClock;
 				var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
@@ -2632,7 +2567,7 @@ cornerContour_ContourGrad.prototype = {
 				var g = ((c0 >> 8 & 255) / 255 + (c1 >> 8 & 255) / 255) / 2;
 				var b = ((c0 & 255) / 255 + (c1 & 255) / 255) / 2;
 				var half = Math.round(a * 255) << 24 | Math.round(r * 255) << 16 | Math.round(g * 255) << 8 | Math.round(b * 255);
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,half,col.colorClock,col.colorAnti);
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,half,col.colorAnti,col.colorClock);
 			}
 		}
 		this.jxOld = this.jx;
@@ -2649,6 +2584,7 @@ cornerContour_ContourGrad.prototype = {
 			var beta = -this.angle1 - Math.PI / 2;
 			var gamma = -this.angle1 - Math.PI / 2 - Math.PI;
 			var temp = [];
+			var clockwiseTemp = false;
 			var color = 0;
 			var sides = 36;
 			if(sides == null) {
@@ -2786,14 +2722,29 @@ cornerContour_ContourGrad.prototype = {
 				temp[p2++] = cx;
 				temp[p2++] = cy;
 				if(i != 0) {
-					var color_ = color;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
+					if(!clockwiseTemp) {
+						var color_ = color;
+						var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+						var c0 = col.colorAnti;
+						var c1 = col.colorClock;
+						var a = ((c0 >> 24 & 255) / 255 + (c1 >> 24 & 255) / 255) / 2;
+						var r = ((c0 >> 16 & 255) / 255 + (c1 >> 16 & 255) / 255) / 2;
+						var g = ((c0 >> 8 & 255) / 255 + (c1 >> 8 & 255) / 255) / 2;
+						var b = ((c0 & 255) / 255 + (c1 & 255) / 255) / 2;
+						var half = Math.round(a * 255) << 24 | Math.round(r * 255) << 16 | Math.round(g * 255) << 8 | Math.round(b * 255);
+						this.pen.triangle2DGrad(ax,ay,bx,by,cx,cy,half,col.colorClock,col.colorClock);
 					} else {
-						col = this.twoGrad;
+						var color_1 = color;
+						var col1 = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+						var c01 = col1.colorAnti;
+						var c11 = col1.colorClock;
+						var a1 = ((c01 >> 24 & 255) / 255 + (c11 >> 24 & 255) / 255) / 2;
+						var r1 = ((c01 >> 16 & 255) / 255 + (c11 >> 16 & 255) / 255) / 2;
+						var g1 = ((c01 >> 8 & 255) / 255 + (c11 >> 8 & 255) / 255) / 2;
+						var b1 = ((c01 & 255) / 255 + (c11 & 255) / 255) / 2;
+						var half1 = Math.round(a1 * 255) << 24 | Math.round(r1 * 255) << 16 | Math.round(g1 * 255) << 8 | Math.round(b1 * 255);
+						this.pen.triangle2DGrad(ax,ay,bx,by,cx,cy,half1,col1.colorAnti,col1.colorAnti);
 					}
-					this.pen.triangle2DGrad(ax,ay,bx,by,cx,cy,col.colorClock,col.colorAnti,col.colorClock);
 				}
 				angle += step;
 				bx = cx;
@@ -2852,13 +2803,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.kby;
 				var cx_ = this.ncx;
 				var cy_ = this.ncy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			} else {
 				pA = this.pointsAnti.length;
 				this.pointsAnti[pA++] = this.kax;
@@ -2875,15 +2823,12 @@ cornerContour_ContourGrad.prototype = {
 				var ay_ = this.kay;
 				var bx_ = this.kbx;
 				var by_ = this.kby;
-				var cx_ = this.jxOld;
-				var cy_ = this.jyOld;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var cx_ = this.ncx;
+				var cy_ = this.ncy;
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			}
 			this.pen.set_pos(this.quadIndex);
 			var ax_ = this.kax;
@@ -2892,13 +2837,10 @@ cornerContour_ContourGrad.prototype = {
 			var by_ = this.kby;
 			var cx_ = this.jx;
 			var cy_ = this.jy;
-			var col;
-			if(this.twoGrad == null) {
-				col = this.getGradColors();
-			} else {
-				col = this.twoGrad;
-			}
-			this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+			var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+			var C = col.colorClock;
+			var A = col.colorAnti;
+			this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 		}
 		if(clockWise && this.lastClock) {
 			if(this.count == 1) {
@@ -2919,13 +2861,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.kby;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 				this.pen.set_pos(this.quadIndex + 1);
 				var ax_ = this.kax;
 				var ay_ = this.kay;
@@ -2933,13 +2872,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.kby;
 				var cx_ = this.ncx;
 				var cy_ = this.ncy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			} else {
 				pA = this.pointsAnti.length;
 				this.pointsAnti[pA++] = this.jxOld;
@@ -2958,13 +2894,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.kby;
 				var cx_ = this.jx;
 				var cy_ = this.jy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 				this.pen.set_pos(this.quadIndex + 1);
 				var ax_ = this.jxOld;
 				var ay_ = this.jyOld;
@@ -2972,13 +2905,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.kby;
 				var cx_ = this.ncx;
 				var cy_ = this.ncy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			}
 		}
 		if(!clockWise && !this.lastClock) {
@@ -2989,13 +2919,10 @@ cornerContour_ContourGrad.prototype = {
 			var by_ = this.jy;
 			var cx_ = this.kcx;
 			var cy_ = this.kcy;
-			var col;
-			if(this.twoGrad == null) {
-				col = this.getGradColors();
-			} else {
-				col = this.twoGrad;
-			}
-			this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+			var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+			var C = col.colorClock;
+			var A = col.colorAnti;
+			this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 			if(this.count == 1) {
 				pA = this.pointsAnti.length;
 				this.pointsAnti[pA++] = this.kax;
@@ -3014,13 +2941,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.jy;
 				var cx_ = this.ncx;
 				var cy_ = this.ncy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			} else {
 				pA = this.pointsAnti.length;
 				this.pointsAnti[pA++] = this.kax;
@@ -3039,13 +2963,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.jy;
 				var cx_ = this.jxOld;
 				var cy_ = this.jyOld;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			}
 		}
 		if(!clockWise && this.lastClock) {
@@ -3067,13 +2988,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.jy;
 				var cx_ = this.kcx;
 				var cy_ = this.kcy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 				this.pen.set_pos(this.quadIndex + 1);
 				var ax_ = this.kax;
 				var ay_ = this.kay;
@@ -3081,13 +2999,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.jy;
 				var cx_ = this.ncx;
 				var cy_ = this.ncy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			} else {
 				pA = this.pointsAnti.length;
 				this.pointsAnti[pA++] = this.jxOld;
@@ -3106,13 +3021,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.jy;
 				var cx_ = this.kcx;
 				var cy_ = this.kcy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorClock);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,C);
 				this.pen.set_pos(this.quadIndex + 1);
 				var ax_ = this.jxOld;
 				var ay_ = this.jyOld;
@@ -3120,13 +3032,10 @@ cornerContour_ContourGrad.prototype = {
 				var by_ = this.jy;
 				var cx_ = this.ncx;
 				var cy_ = this.ncy;
-				var col;
-				if(this.twoGrad == null) {
-					col = this.getGradColors();
-				} else {
-					col = this.twoGrad;
-				}
-				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,col.colorClock,col.colorAnti,col.colorAnti);
+				var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+				var C = col.colorClock;
+				var A = col.colorAnti;
+				this.pen.triangle2DGrad(ax_,ay_,bx_,by_,cx_,cy_,C,A,A);
 			}
 		}
 		this.pen.set_pos(currQuadIndex);
@@ -3380,13 +3289,11 @@ cornerContour_ContourGrad.prototype = {
 				cy = ay_ + radius * Math.cos(angle);
 				if(i != 0) {
 					var color_ = color;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_,ay_,bx,by,cx,cy,-65536,-16711936,-16776961);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var red = -65536;
+					var blue = -16711936;
+					var green = -16776961;
+					this.pen.triangle2DGrad(ax_,ay_,bx,by,cx,cy,red,green,blue);
 				}
 				angle += step;
 				bx = cx;
@@ -3532,13 +3439,11 @@ cornerContour_ContourGrad.prototype = {
 				cy = by_ + radius * Math.cos(angle);
 				if(i != 0) {
 					var color_ = color;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(bx_,by_,bx,by,cx,cy,-65536,-16711936,-16776961);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var red = -65536;
+					var blue = -16711936;
+					var green = -16776961;
+					this.pen.triangle2DGrad(bx_,by_,bx,by,cx,cy,red,green,blue);
 				}
 				angle += step;
 				bx = cx;
@@ -3684,13 +3589,11 @@ cornerContour_ContourGrad.prototype = {
 				cy = ay_ + radius * Math.cos(angle);
 				if(i != 0) {
 					var color_ = color;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(ax_,ay_,bx,by,cx,cy,-65536,-16711936,-16776961);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var red = -65536;
+					var blue = -16711936;
+					var green = -16776961;
+					this.pen.triangle2DGrad(ax_,ay_,bx,by,cx,cy,red,green,blue);
 				}
 				angle += step;
 				bx = cx;
@@ -3834,13 +3737,11 @@ cornerContour_ContourGrad.prototype = {
 				cy = by_ + radius * Math.cos(angle);
 				if(i != 0) {
 					var color_ = color;
-					var col;
-					if(this.twoGrad == null) {
-						col = this.getGradColors();
-					} else {
-						col = this.twoGrad;
-					}
-					this.pen.triangle2DGrad(bx_,by_,bx,by,cx,cy,-65536,-16711936,-16776961);
+					var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+					var red = -65536;
+					var blue = -16711936;
+					var green = -16776961;
+					this.pen.triangle2DGrad(bx_,by_,bx,by,cx,cy,red,green,blue);
 				}
 				angle += step;
 				bx = cx;
@@ -3850,24 +3751,18 @@ cornerContour_ContourGrad.prototype = {
 		}
 		var bx_ = this.dx;
 		var by_ = this.dy;
-		var col;
-		if(this.twoGrad == null) {
-			col = this.getGradColors();
-		} else {
-			col = this.twoGrad;
-		}
-		this.pen.triangle2DGrad(dxPrev_,dyPrev_,bx_,by_,exPrev_,eyPrev_,col.colorAnti,col.colorClock,col.colorClock);
+		var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+		var C = col.colorClock;
+		var A = col.colorAnti;
+		this.pen.triangle2DGrad(dxPrev_,dyPrev_,bx_,by_,exPrev_,eyPrev_,A,C,C);
 		var bx_ = this.dx;
 		var by_ = this.dy;
 		var cx_ = this.ex;
 		var cy_ = this.ey;
-		var col;
-		if(this.twoGrad == null) {
-			col = this.getGradColors();
-		} else {
-			col = this.twoGrad;
-		}
-		this.pen.triangle2DGrad(dxPrev_,dyPrev_,bx_,by_,cx_,cy_,col.colorAnti,col.colorClock,col.colorAnti);
+		var col = this.twoGrad == null ? this.getGradColors() : this.twoGrad;
+		var C = col.colorClock;
+		var A = col.colorAnti;
+		this.pen.triangle2DGrad(dxPrev_,dyPrev_,bx_,by_,cx_,cy_,A,C,A);
 	}
 };
 var cornerContour_Pen2DGrad = function(col,colB,colC) {
@@ -3959,8 +3854,10 @@ var cornerContour_Sketcher = function(pen_,sketchForm_,endLine_) {
 		endLine_ = 0;
 	}
 	this.width = 0.01;
+	this.rotation = 0.;
 	this.y = 0.;
 	this.x = 0.;
+	this.rotation = -Math.PI / 2;
 	this.pen = pen_;
 	this.endLine = endLine_;
 	this.contour = this.createContour();
@@ -4003,12 +3900,12 @@ var cornerContour_Sketcher = function(pen_,sketchForm_,endLine_) {
 cornerContour_Sketcher.__name__ = true;
 cornerContour_Sketcher.prototype = {
 	tracerLine: function(x_,y_) {
-		haxe_Log.trace("lineTo( " + this.x + ", " + this.y + ", " + x_ + ", " + y_ + ", width )",{ fileName : "cornerContour/Sketcher.hx", lineNumber : 30, className : "cornerContour.Sketcher", methodName : "tracerLine"});
+		haxe_Log.trace("lineTo( " + this.x + ", " + this.y + ", " + x_ + ", " + y_ + ", width )",{ fileName : "cornerContour/Sketcher.hx", lineNumber : 32, className : "cornerContour.Sketcher", methodName : "tracerLine"});
 	}
 	,fillOnlyLine: function(x_,y_) {
 	}
 	,baseLine: function(x_,y_) {
-		haxe_Log.trace("lineTo( " + this.x + ", " + this.y + ", " + x_ + ", " + y_ + ", width )",{ fileName : "cornerContour/Sketcher.hx", lineNumber : 30, className : "cornerContour.Sketcher", methodName : "tracerLine"});
+		haxe_Log.trace("lineTo( " + this.x + ", " + this.y + ", " + x_ + ", " + y_ + ", width )",{ fileName : "cornerContour/Sketcher.hx", lineNumber : 32, className : "cornerContour.Sketcher", methodName : "tracerLine"});
 		this.contour.line(this.x,this.y,x_,y_,this.width);
 	}
 	,crudeLine: function(x_,y_) {
@@ -4446,540 +4343,6 @@ cornerContour_io_Array2DTriangles.triangle = function(this1,ax_,ay_,bx_,by_,cx_,
 cornerContour_io_Array2DTriangles.adjustWinding = function(this1) {
 	return cornerContour_io_Array2DTriangles.get_ax(this1) * cornerContour_io_Array2DTriangles.get_by(this1) - cornerContour_io_Array2DTriangles.get_bx(this1) * cornerContour_io_Array2DTriangles.get_ay(this1) + (cornerContour_io_Array2DTriangles.get_bx(this1) * cornerContour_io_Array2DTriangles.get_cy(this1) - cornerContour_io_Array2DTriangles.get_cx(this1) * cornerContour_io_Array2DTriangles.get_by(this1)) + (cornerContour_io_Array2DTriangles.get_cx(this1) * cornerContour_io_Array2DTriangles.get_ay(this1) - cornerContour_io_Array2DTriangles.get_ax(this1) * cornerContour_io_Array2DTriangles.get_cy(this1)) > 0;
 };
-var cornerContourWebGLTest_CornerContourWebGL = function() {
-	this.bird_d = "M210.333,65.331C104.367,66.105-12.349,150.637,1.056,276.449c4.303,40.393,18.533,63.704,52.171,79.03c36.307,16.544,57.022,54.556,50.406,112.954c-9.935,4.88-17.405,11.031-19.132,20.015c7.531-0.17,14.943-0.312,22.59,4.341c20.333,12.375,31.296,27.363,42.979,51.72c1.714,3.572,8.192,2.849,8.312-3.078c0.17-8.467-1.856-17.454-5.226-26.933c-2.955-8.313,3.059-7.985,6.917-6.106c6.399,3.115,16.334,9.43,30.39,13.098c5.392,1.407,5.995-3.877,5.224-6.991c-1.864-7.522-11.009-10.862-24.519-19.229c-4.82-2.984-0.927-9.736,5.168-8.351l20.234,2.415c3.359,0.763,4.555-6.114,0.882-7.875c-14.198-6.804-28.897-10.098-53.864-7.799c-11.617-29.265-29.811-61.617-15.674-81.681c12.639-17.938,31.216-20.74,39.147,43.489c-5.002,3.107-11.215,5.031-11.332,13.024c7.201-2.845,11.207-1.399,14.791,0c17.912,6.998,35.462,21.826,52.982,37.309c3.739,3.303,8.413-1.718,6.991-6.034c-2.138-6.494-8.053-10.659-14.791-20.016c-3.239-4.495,5.03-7.045,10.886-6.876c13.849,0.396,22.886,8.268,35.177,11.218c4.483,1.076,9.741-1.964,6.917-6.917c-3.472-6.085-13.015-9.124-19.18-13.413c-4.357-3.029-3.025-7.132,2.697-6.602c3.905,0.361,8.478,2.271,13.908,1.767c9.946-0.925,7.717-7.169-0.883-9.566c-19.036-5.304-39.891-6.311-61.665-5.225c-43.837-8.358-31.554-84.887,0-90.363c29.571-5.132,62.966-13.339,99.928-32.156c32.668-5.429,64.835-12.446,92.939-33.85c48.106-14.469,111.903,16.113,204.241,149.695c3.926,5.681,15.819,9.94,9.524-6.351c-15.893-41.125-68.176-93.328-92.13-132.085c-24.581-39.774-14.34-61.243-39.957-91.247c-21.326-24.978-47.502-25.803-77.339-17.365c-23.461,6.634-39.234-7.117-52.98-31.273C318.42,87.525,265.838,64.927,210.333,65.331zM445.731,203.01c6.12,0,11.112,4.919,11.112,11.038c0,6.119-4.994,11.111-11.112,11.111s-11.038-4.994-11.038-11.111C434.693,207.929,439.613,203.01,445.731,203.01z";
-	this.arc7_3 = "M 100 200 A 100 50 -45 1 1 250 150";
-	this.arc7_2 = "M 100 200 A 100 50 -45 1 0 250 150";
-	this.arc7_1 = "M 100 200 A 100 50 -45 0 1 250 150";
-	this.arc7_0 = "M 100 200 A 100 50 -45 0 0 250 150";
-	this.arc6_3 = "M 100 200 A 100 50 -45 1 0 250 150";
-	this.arc6_2 = "M 100 200 A 100 50 -45 1 1 250 150";
-	this.arc6_1 = "M 100 200 A 100 50 -45 0 1 250 150";
-	this.arc6_0 = "M 100 200 A 100 50 -45 0 0 250 150";
-	this.arc5_3 = "M 100 200 A 100 50 -44 0 1 250 150";
-	this.arc5_2 = "M 100 200 A 100 50 -44 1 0 250 150";
-	this.arc5_1 = "M 100 200 A 100 50 -44 1 1 250 150";
-	this.arc5_0 = "M 100 200 A 100 50 -44 0 0 250 150";
-	this.arc4_3 = "M 100 200 A 100 50 -44 0 0 250 150";
-	this.arc4_2 = "M 100 200 A 100 50 -44 1 1 250 150";
-	this.arc4_1 = "M 100 200 A 100 50 -44 0 1 250 150";
-	this.arc4_0 = "M 100 200 A 100 50 -44 1 0 250 150";
-	this.arc3_3 = "M 100 200 A 100 50 -15 1 1 250 150";
-	this.arc3_2 = "M 100 200 A 100 50 -15 1 0 250 150";
-	this.arc3_1 = "M 100 200 A 100 50 -15 0 1 250 150";
-	this.arc3_0 = "M 100 200 A 100 50 -15 0 0 250 150";
-	this.arc2_3 = "M 100 200 A 100 50 -15 1 0 250 150";
-	this.arc2_2 = "M 100 200 A 100 50 -15 1 1 250 150";
-	this.arc2_1 = "M 100 200 A 100 50 -15 0 1 250 150";
-	this.arc2_0 = "M 100 200 A 100 50 -15 0 0 250 150";
-	this.arc1_3 = "M 100 200 A 100 50 0.0 0 1 250 150";
-	this.arc1_2 = "M 100 200 A 100 50 0.0 1 1 250 150";
-	this.arc1_1 = "M 100 200 A 100 50 0.0 1 0 250 150";
-	this.arc1_0 = "M 100 200 A 100 50 0.0 0 0 250 150";
-	this.arc0_3 = "M 100 200 A 100 50 0.0 0 0 250 150";
-	this.arc0_2 = "M 100 200 A 100 50 0.0 1 1 250 150";
-	this.arc0_1 = "M 100 200 A 100 50 0.0 1 0 250 150";
-	this.arc0_0 = "M 100 200 A 100 50 0.0 0 1 250 150";
-	this.lightGray = -2894893;
-	this.gainsboro = -2302756;
-	this.silver = -4144960;
-	this.crimson = -2354116;
-	this.vertexColor = "vertexColor";
-	this.vertexPosition = "vertexPosition";
-	this.cubictest_d = "M100,200 C100,100 250,100 250,200S400,300 400,200";
-	this.quadtest_d = "M200,300 Q400,50 600,300 T1000,300";
-	this.divertTrace = new cornerContourWebGLTest_DivertTrace();
-	haxe_Log.trace("Contour Test",{ fileName : "src/cornerContourWebGLTest/CornerContourWebGL.js.hx", lineNumber : 72, className : "cornerContourWebGLTest.CornerContourWebGL", methodName : "new"});
-	this.width = 1024;
-	this.height = 768;
-	this.drawContours();
-	this.rearrageDrawData();
-	this.renderOnce();
-};
-cornerContourWebGLTest_CornerContourWebGL.__name__ = true;
-cornerContourWebGLTest_CornerContourWebGL.prototype = {
-	rearrageDrawData: function() {
-		haxe_Log.trace("rearrangeDrawData",{ fileName : "src/cornerContourWebGLTest/CornerContourWebGL.js.hx", lineNumber : 83, className : "cornerContourWebGLTest.CornerContourWebGL", methodName : "rearrageDrawData"});
-		var pen = this.pen2D;
-		var data = pen.arr;
-		var redA = 0.;
-		var greenA = 0.;
-		var blueA = 0.;
-		var alphaA = 0.;
-		var colorA = 0;
-		var redB = 0.;
-		var greenB = 0.;
-		var blueB = 0.;
-		var alphaB = 0.;
-		var colorB = 0;
-		var redC = 0.;
-		var greenC = 0.;
-		var blueC = 0.;
-		var alphaC = 0.;
-		var colorC = 0;
-		this.totalTriangles = (data.length - 1) / 9 | 0;
-		this.bufferLength = this.totalTriangles * 3;
-		this.len = this.totalTriangles * 6 * 3 | 0;
-		var j = 0;
-		var this1 = new Float32Array(this.len);
-		this.arr32 = this1;
-		haxe_Log.trace("total triangles " + this.len,{ fileName : "src/cornerContourWebGLTest/CornerContourWebGL.js.hx", lineNumber : 109, className : "cornerContourWebGLTest.CornerContourWebGL", methodName : "rearrageDrawData"});
-		var _g = 0;
-		var _g1 = this.totalTriangles;
-		while(_g < _g1) {
-			var i = _g++;
-			pen.arr[0] = i;
-			colorA = cornerContour_io_Array2DTriGrad.get_colorA(data) | 0;
-			alphaA = (colorA >> 24 & 255) / 255;
-			redA = (colorA >> 16 & 255) / 255;
-			greenA = (colorA >> 8 & 255) / 255;
-			blueA = (colorA & 255) / 255;
-			colorB = cornerContour_io_Array2DTriGrad.get_colorB(data) | 0;
-			alphaB = (colorB >> 24 & 255) / 255;
-			redB = (colorB >> 16 & 255) / 255;
-			greenB = (colorB >> 8 & 255) / 255;
-			blueB = (colorB & 255) / 255;
-			colorC = cornerContour_io_Array2DTriGrad.get_colorC(data) | 0;
-			alphaC = (colorC >> 24 & 255) / 255;
-			redC = (colorC >> 16 & 255) / 255;
-			greenC = (colorC >> 8 & 255) / 255;
-			blueC = (colorC & 255) / 255;
-			this.arr32[j] = -(1 - 2 * cornerContour_io_Array2DTriGrad.get_ax(data) / this.width);
-			++j;
-			this.arr32[j] = 1 - 2 * cornerContour_io_Array2DTriGrad.get_ay(data) / this.height;
-			++j;
-			this.arr32[j] = redA;
-			++j;
-			this.arr32[j] = greenA;
-			++j;
-			this.arr32[j] = blueA;
-			++j;
-			this.arr32[j] = alphaA;
-			++j;
-			this.arr32[j] = -(1 - 2 * cornerContour_io_Array2DTriGrad.get_bx(data) / this.width);
-			++j;
-			this.arr32[j] = 1 - 2 * cornerContour_io_Array2DTriGrad.get_by(data) / this.height;
-			++j;
-			this.arr32[j] = redB;
-			++j;
-			this.arr32[j] = greenB;
-			++j;
-			this.arr32[j] = blueB;
-			++j;
-			this.arr32[j] = alphaB;
-			++j;
-			this.arr32[j] = -(1 - 2 * cornerContour_io_Array2DTriGrad.get_cx(data) / this.width);
-			++j;
-			this.arr32[j] = 1 - 2 * cornerContour_io_Array2DTriGrad.get_cy(data) / this.height;
-			++j;
-			this.arr32[j] = redC;
-			++j;
-			this.arr32[j] = greenC;
-			++j;
-			this.arr32[j] = blueC;
-			++j;
-			this.arr32[j] = alphaC;
-			++j;
-		}
-	}
-	,drawContours: function() {
-		haxe_Log.trace("drawContours",{ fileName : "src/cornerContourWebGLTest/CornerContourWebGL.js.hx", lineNumber : 175, className : "cornerContourWebGLTest.CornerContourWebGL", methodName : "drawContours"});
-		this.pen2D = new cornerContour_Pen2DGrad(-16776961,-16711936,-16776961);
-		this.arcSVG();
-		this.pen2D.currentColor = -16776961;
-		this.pen2D.colorB = -16711936;
-		this.pen2D.colorC = -16776961;
-		this.lineTest();
-		this.birdSVG();
-		this.cubicSVG();
-		this.quadSVG();
-	}
-	,renderOnce: function() {
-		haxe_Log.trace("renderOnce",{ fileName : "src/cornerContourWebGLTest/CornerContourWebGL.js.hx", lineNumber : 189, className : "cornerContourWebGLTest.CornerContourWebGL", methodName : "renderOnce"});
-		this.mainSheet = new cornerContourWebGLTest_Sheet();
-		this.mainSheet.create(this.width,this.height,true);
-		this.gl = this.mainSheet.gl;
-		var gl = this.gl;
-		var width = this.width;
-		var height = this.height;
-		var r = 0.;
-		var g = 0.;
-		var b = 0.;
-		var a = 1.;
-		if(a == null) {
-			a = 0.;
-		}
-		if(b == null) {
-			b = 0.;
-		}
-		if(g == null) {
-			g = 0.;
-		}
-		if(r == null) {
-			r = 0.;
-		}
-		gl.clearColor(r,g,b,a);
-		gl.enable(2929);
-		gl.clear(16384);
-		gl.viewport(0,0,width,height);
-		gl.enable(3042);
-		gl.blendFunc(1,771);
-		gl.enable(2929);
-		var gl = this.gl;
-		var program = gl.createProgram();
-		var shader = gl.createShader(35633);
-		gl.shaderSource(shader,"attribute vec2 vertexPosition;" + "attribute vec4 vertexColor;" + "varying vec4 vcol;" + "void main(void) {" + " gl_Position = vec4(vertexPosition, .0, 1.0);" + " vcol = vertexColor;" + "}");
-		gl.compileShader(shader);
-		var tmp;
-		if(!gl.getShaderParameter(shader,35713)) {
-			throw haxe_Exception.thrown("Error compiling shader. " + gl.getShaderInfoLog(shader));
-		} else {
-			tmp = shader;
-		}
-		gl.attachShader(program,tmp);
-		var shader = gl.createShader(35632);
-		gl.shaderSource(shader,"precision mediump float;" + "varying vec4 vcol;" + "void main(void) {" + "vec4 color = vec4(vcol.rgb, vcol.a );" + "gl_FragColor = color;" + "}");
-		gl.compileShader(shader);
-		var tmp;
-		if(!gl.getShaderParameter(shader,35713)) {
-			throw haxe_Exception.thrown("Error compiling shader. " + gl.getShaderInfoLog(shader));
-		} else {
-			tmp = shader;
-		}
-		gl.attachShader(program,tmp);
-		gl.linkProgram(program);
-		var tmp;
-		if(!gl.getProgramParameter(program,35714)) {
-			throw haxe_Exception.thrown("Error linking program. " + gl.getProgramInfoLog(program));
-		} else {
-			gl.validateProgram(program);
-			if(!gl.getProgramParameter(program,35715)) {
-				throw haxe_Exception.thrown("Error validating program. " + gl.getProgramInfoLog(program));
-			} else {
-				gl.useProgram(program);
-				tmp = program;
-			}
-		}
-		this.programColor = tmp;
-		this.gl.bindBuffer(34962,null);
-		this.gl.useProgram(this.programColor);
-		var gl = this.gl;
-		var program = this.programColor;
-		var data = this.arr32;
-		var xyName = this.vertexPosition;
-		var rgbaName = this.vertexColor;
-		var isDynamic = true;
-		if(isDynamic == null) {
-			isDynamic = false;
-		}
-		var isDynamic1 = isDynamic;
-		if(isDynamic1 == null) {
-			isDynamic1 = false;
-		}
-		var buf = gl.createBuffer();
-		var staticDraw = 35044;
-		var dynamicDraw = 35048;
-		var arrayBuffer = 34962;
-		gl.bindBuffer(arrayBuffer,buf);
-		if(isDynamic1) {
-			var arrayBuffer = 34962;
-			gl.bufferData(arrayBuffer,data,dynamicDraw);
-		} else {
-			var arrayBuffer = 34962;
-			gl.bufferData(arrayBuffer,data,staticDraw);
-		}
-		var vbo = buf;
-		var inp = gl.getAttribLocation(program,xyName);
-		var elementBytes = 4;
-		var fp = 5126;
-		var strideBytes = 6 * elementBytes;
-		var offBytes = 0 * elementBytes;
-		gl.vertexAttribPointer(inp,2,fp,false,strideBytes,offBytes);
-		gl.enableVertexAttribArray(inp);
-		var inp = gl.getAttribLocation(program,rgbaName);
-		var elementBytes = 4;
-		var fp = 5126;
-		var strideBytes = 6 * elementBytes;
-		var offBytes = 2 * elementBytes;
-		gl.vertexAttribPointer(inp,4,fp,false,strideBytes,offBytes);
-		gl.enableVertexAttribArray(inp);
-		this.bufColor = vbo;
-		this.gl.bindBuffer(34962,this.bufColor);
-		this.gl.useProgram(this.programColor);
-		this.gl.drawArrays(4,0,this.bufferLength);
-	}
-	,lineTest: function() {
-		var sketcher = new cornerContour_SketcherGrad(this.pen2D,4,3);
-		sketcher.width = 50;
-		if(sketcher.endLine == 2 || sketcher.endLine == 3) {
-			sketcher.contour.end(sketcher.width);
-		}
-		sketcher.x = 40;
-		sketcher.y = 100;
-		var l = sketcher.points.length;
-		sketcher.points[l] = [];
-		sketcher.points[l][0] = 40;
-		sketcher.points[l][1] = 100;
-		sketcher.pointsClock[sketcher.pointsClock.length] = sketcher.contour.pointsClock.slice();
-		sketcher.pointsAnti[sketcher.pointsAnti.length] = sketcher.contour.pointsAnti.slice();
-		sketcher.dim[sketcher.dim.length] = { minX : Infinity, maxX : -Infinity, minY : Infinity, maxY : -Infinity};
-		var d = sketcher.dim[sketcher.dim.length - 1];
-		if(40 < d.minX) {
-			d.minX = 40;
-		}
-		if(40 > d.maxX) {
-			d.maxX = 40;
-		}
-		if(100 < d.minY) {
-			d.minY = 100;
-		}
-		if(100 > d.maxY) {
-			d.maxY = 100;
-		}
-		sketcher.contour.reset();
-		var repeat = sketcher.x == 100 && sketcher.y == 100;
-		if(!repeat) {
-			if(sketcher.widthFunction != null) {
-				sketcher.width = sketcher.widthFunction(sketcher.width,sketcher.x,sketcher.y,100,100);
-			}
-			if(sketcher.colourFunction != null) {
-				sketcher.pen.currentColor = sketcher.colourFunction(sketcher.pen.currentColor,sketcher.x,sketcher.y,100,100);
-			}
-			if(sketcher.colourFunctionB != null) {
-				sketcher.pen.colorB = sketcher.colourFunctionB(sketcher.pen.colorB,sketcher.x,sketcher.y,100,100);
-			}
-			if(sketcher.colourFunctionC != null) {
-				sketcher.pen.colorC = sketcher.colourFunctionC(sketcher.pen.colorC,sketcher.x,sketcher.y,100,100);
-			}
-			sketcher.line(100,100);
-			var l = sketcher.points.length;
-			var p = sketcher.points[l - 1];
-			var l2 = p.length;
-			p[l2] = 100;
-			p[l2 + 1] = 100;
-			var d = sketcher.dim[sketcher.dim.length - 1];
-			if(100 < d.minX) {
-				d.minX = 100;
-			}
-			if(100 > d.maxX) {
-				d.maxX = 100;
-			}
-			if(100 < d.minY) {
-				d.minY = 100;
-			}
-			if(100 > d.maxY) {
-				d.maxY = 100;
-			}
-			sketcher.x = 100;
-			sketcher.y = 100;
-		}
-		var repeat = sketcher.x == 80 && sketcher.y == 200;
-		if(!repeat) {
-			if(sketcher.widthFunction != null) {
-				sketcher.width = sketcher.widthFunction(sketcher.width,sketcher.x,sketcher.y,80,200);
-			}
-			if(sketcher.colourFunction != null) {
-				sketcher.pen.currentColor = sketcher.colourFunction(sketcher.pen.currentColor,sketcher.x,sketcher.y,80,200);
-			}
-			if(sketcher.colourFunctionB != null) {
-				sketcher.pen.colorB = sketcher.colourFunctionB(sketcher.pen.colorB,sketcher.x,sketcher.y,80,200);
-			}
-			if(sketcher.colourFunctionC != null) {
-				sketcher.pen.colorC = sketcher.colourFunctionC(sketcher.pen.colorC,sketcher.x,sketcher.y,80,200);
-			}
-			sketcher.line(80,200);
-			var l = sketcher.points.length;
-			var p = sketcher.points[l - 1];
-			var l2 = p.length;
-			p[l2] = 80;
-			p[l2 + 1] = 200;
-			var d = sketcher.dim[sketcher.dim.length - 1];
-			if(80 < d.minX) {
-				d.minX = 80;
-			}
-			if(80 > d.maxX) {
-				d.maxX = 80;
-			}
-			if(200 < d.minY) {
-				d.minY = 200;
-			}
-			if(200 > d.maxY) {
-				d.maxY = 200;
-			}
-			sketcher.x = 80;
-			sketcher.y = 200;
-		}
-		if(sketcher.endLine == 2 || sketcher.endLine == 3) {
-			sketcher.contour.end(sketcher.width);
-		}
-		sketcher.x = 300;
-		sketcher.y = 100;
-		var l = sketcher.points.length;
-		sketcher.points[l] = [];
-		sketcher.points[l][0] = 300;
-		sketcher.points[l][1] = 100;
-		sketcher.pointsClock[sketcher.pointsClock.length] = sketcher.contour.pointsClock.slice();
-		sketcher.pointsAnti[sketcher.pointsAnti.length] = sketcher.contour.pointsAnti.slice();
-		sketcher.dim[sketcher.dim.length] = { minX : Infinity, maxX : -Infinity, minY : Infinity, maxY : -Infinity};
-		var d = sketcher.dim[sketcher.dim.length - 1];
-		if(300 < d.minX) {
-			d.minX = 300;
-		}
-		if(300 > d.maxX) {
-			d.maxX = 300;
-		}
-		if(100 < d.minY) {
-			d.minY = 100;
-		}
-		if(100 > d.maxY) {
-			d.maxY = 100;
-		}
-		sketcher.contour.reset();
-		var repeat = sketcher.x == 380 && sketcher.y == 100;
-		if(!repeat) {
-			if(sketcher.widthFunction != null) {
-				sketcher.width = sketcher.widthFunction(sketcher.width,sketcher.x,sketcher.y,380,100);
-			}
-			if(sketcher.colourFunction != null) {
-				sketcher.pen.currentColor = sketcher.colourFunction(sketcher.pen.currentColor,sketcher.x,sketcher.y,380,100);
-			}
-			if(sketcher.colourFunctionB != null) {
-				sketcher.pen.colorB = sketcher.colourFunctionB(sketcher.pen.colorB,sketcher.x,sketcher.y,380,100);
-			}
-			if(sketcher.colourFunctionC != null) {
-				sketcher.pen.colorC = sketcher.colourFunctionC(sketcher.pen.colorC,sketcher.x,sketcher.y,380,100);
-			}
-			sketcher.line(380,100);
-			var l = sketcher.points.length;
-			var p = sketcher.points[l - 1];
-			var l2 = p.length;
-			p[l2] = 380;
-			p[l2 + 1] = 100;
-			var d = sketcher.dim[sketcher.dim.length - 1];
-			if(380 < d.minX) {
-				d.minX = 380;
-			}
-			if(380 > d.maxX) {
-				d.maxX = 380;
-			}
-			if(100 < d.minY) {
-				d.minY = 100;
-			}
-			if(100 > d.maxY) {
-				d.maxY = 100;
-			}
-			sketcher.x = 380;
-			sketcher.y = 100;
-		}
-		var repeat = sketcher.x == 350 && sketcher.y == 0;
-		if(!repeat) {
-			if(sketcher.widthFunction != null) {
-				sketcher.width = sketcher.widthFunction(sketcher.width,sketcher.x,sketcher.y,350,0);
-			}
-			if(sketcher.colourFunction != null) {
-				sketcher.pen.currentColor = sketcher.colourFunction(sketcher.pen.currentColor,sketcher.x,sketcher.y,350,0);
-			}
-			if(sketcher.colourFunctionB != null) {
-				sketcher.pen.colorB = sketcher.colourFunctionB(sketcher.pen.colorB,sketcher.x,sketcher.y,350,0);
-			}
-			if(sketcher.colourFunctionC != null) {
-				sketcher.pen.colorC = sketcher.colourFunctionC(sketcher.pen.colorC,sketcher.x,sketcher.y,350,0);
-			}
-			sketcher.line(350,0);
-			var l = sketcher.points.length;
-			var p = sketcher.points[l - 1];
-			var l2 = p.length;
-			p[l2] = 350;
-			p[l2 + 1] = 0;
-			var d = sketcher.dim[sketcher.dim.length - 1];
-			if(350 < d.minX) {
-				d.minX = 350;
-			}
-			if(350 > d.maxX) {
-				d.maxX = 350;
-			}
-			if(0 < d.minY) {
-				d.minY = 0;
-			}
-			if(0 > d.maxY) {
-				d.maxY = 0;
-			}
-			sketcher.x = 350;
-			sketcher.y = 0;
-		}
-	}
-	,birdSVG: function() {
-		var sketcher = new cornerContour_SketcherGrad(this.pen2D,4,3);
-		sketcher.width = 30;
-		var scaleTranslateContext = new justPath_transform_ScaleTranslateContext(sketcher,20,0,1,1);
-		var p = new justPath_SvgPath(scaleTranslateContext);
-		p.parse(this.bird_d);
-	}
-	,cubicSVG: function() {
-		var sketcher = new cornerContour_SketcherGrad(this.pen2D,6,3);
-		sketcher.width = 50;
-		sketcher.colourFunction = function(colour,x,y,x_,y_) {
-			return Math.round(colour - x * y);
-		};
-		sketcher.colourFunctionB = function(colour,x,y,x_,y_) {
-			return Math.round(colour + x / y);
-		};
-		var translateContext = new justPath_transform_TranslationContext(sketcher,50,200);
-		var p = new justPath_SvgPath(translateContext);
-		p.parse(this.cubictest_d);
-	}
-	,quadSVG: function() {
-		var sketcher = new cornerContour_SketcherGrad(this.pen2D,4,3);
-		sketcher.width = 1;
-		sketcher.widthFunction = function(width,x,y,x_,y_) {
-			return width + 0.016;
-		};
-		var translateContext = new justPath_transform_ScaleTranslateContext(sketcher,0,100,0.5,0.5);
-		var p = new justPath_SvgPath(translateContext);
-		p.parse(this.quadtest_d);
-	}
-	,arcSVG: function() {
-		var arcs0 = [this.arc0_0,this.arc0_1,this.arc0_2,this.arc0_3];
-		var arcs1 = [this.arc1_0,this.arc1_1,this.arc1_2,this.arc1_3];
-		var arcs2 = [this.arc2_0,this.arc2_1,this.arc2_2,this.arc2_3];
-		var arcs3 = [this.arc3_0,this.arc3_1,this.arc3_2,this.arc3_3];
-		var arcs4 = [this.arc4_0,this.arc4_1,this.arc4_2,this.arc4_3];
-		var arcs5 = [this.arc5_0,this.arc5_1,this.arc5_2,this.arc5_3];
-		var arcs6 = [this.arc6_0,this.arc6_1,this.arc6_2,this.arc6_3];
-		var arcs7 = [this.arc7_0,this.arc7_1,this.arc7_2,this.arc7_3];
-		var pallet = [this.silver,this.gainsboro,this.lightGray,this.crimson];
-		var x0 = 130;
-		var x1 = 450;
-		var yPos = [-30,100,250,400];
-		var arcs = [arcs0,arcs1,arcs2,arcs3,arcs4,arcs5,arcs6,arcs7];
-		var _g = 0;
-		var _g1 = yPos.length;
-		while(_g < _g1) {
-			var i = _g++;
-			this.drawSet(arcs.shift(),pallet,x0,yPos[i],0.5);
-			this.drawSet(arcs.shift(),pallet,x1,yPos[i],0.5);
-		}
-	}
-	,drawSet: function(arcs,col,x,y,s) {
-		var _g = 0;
-		var _g1 = arcs.length;
-		while(_g < _g1) {
-			var i = _g++;
-			this.draw_d(arcs[i],x,y,s,10.,col[i]);
-		}
-	}
-	,draw_d: function(d,x,y,s,w,color) {
-		this.pen2D.currentColor = color;
-		var sketcher = new cornerContour_SketcherGrad(this.pen2D,4,3);
-		sketcher.width = w;
-		var trans = new justPath_transform_ScaleTranslateContext(sketcher,x,y,s,s);
-		var p = new justPath_SvgPath(trans);
-		p.parse(d);
-	}
-};
-function cornerContourWebGLTest_CornerContourWebGL_main() {
-	new cornerContourWebGLTest_CornerContourWebGL();
-}
 var cornerContourWebGLTest_DivertTrace = function(left_) {
 	if(left_ == null) {
 		left_ = 610;
@@ -5093,6 +4456,374 @@ cornerContourWebGLTest_Sheet.prototype = {
 		this.cx = this.canvas2D.getContext("2d");
 	}
 };
+var cornerContourWebGLTest_SpaghettiGraffiti2point5 = function() {
+	this.cubictest_d = "M100,200 C100,100 250,100 250,200S400,300 400,200";
+	this.vertexColor = "vertexColor";
+	this.vertexPosition = "vertexPosition";
+	this.divertTrace = new cornerContourWebGLTest_DivertTrace();
+	haxe_Log.trace("Contour Test - 2.5D Spaghetti Graffiti",{ fileName : "src/cornerContourWebGLTest/SpaghettiGraffiti2point5.js.hx", lineNumber : 65, className : "cornerContourWebGLTest.SpaghettiGraffiti2point5", methodName : "new"});
+	this.width = 1024;
+	this.height = 768;
+	this.drawContours();
+	this.rearrageDrawData();
+	this.renderOnce();
+};
+cornerContourWebGLTest_SpaghettiGraffiti2point5.__name__ = true;
+cornerContourWebGLTest_SpaghettiGraffiti2point5.prototype = {
+	rearrageDrawData: function() {
+		haxe_Log.trace("rearrangeDrawData",{ fileName : "src/cornerContourWebGLTest/SpaghettiGraffiti2point5.js.hx", lineNumber : 76, className : "cornerContourWebGLTest.SpaghettiGraffiti2point5", methodName : "rearrageDrawData"});
+		var pen = this.pen2D;
+		var data = pen.arr;
+		var redA = 0.;
+		var greenA = 0.;
+		var blueA = 0.;
+		var alphaA = 0.;
+		var colorA = 0;
+		var redB = 0.;
+		var greenB = 0.;
+		var blueB = 0.;
+		var alphaB = 0.;
+		var colorB = 0;
+		var redC = 0.;
+		var greenC = 0.;
+		var blueC = 0.;
+		var alphaC = 0.;
+		var colorC = 0;
+		this.totalTriangles = (data.length - 1) / 9 | 0;
+		this.bufferLength = this.totalTriangles * 3;
+		this.len = this.totalTriangles * 6 * 3 | 0;
+		var j = 0;
+		var this1 = new Float32Array(this.len);
+		this.arr32 = this1;
+		haxe_Log.trace("total triangles " + this.len,{ fileName : "src/cornerContourWebGLTest/SpaghettiGraffiti2point5.js.hx", lineNumber : 102, className : "cornerContourWebGLTest.SpaghettiGraffiti2point5", methodName : "rearrageDrawData"});
+		var _g = 0;
+		var _g1 = this.totalTriangles;
+		while(_g < _g1) {
+			var i = _g++;
+			pen.arr[0] = i;
+			colorA = cornerContour_io_Array2DTriGrad.get_colorA(data) | 0;
+			alphaA = (colorA >> 24 & 255) / 255;
+			redA = (colorA >> 16 & 255) / 255;
+			greenA = (colorA >> 8 & 255) / 255;
+			blueA = (colorA & 255) / 255;
+			colorB = cornerContour_io_Array2DTriGrad.get_colorB(data) | 0;
+			alphaB = (colorB >> 24 & 255) / 255;
+			redB = (colorB >> 16 & 255) / 255;
+			greenB = (colorB >> 8 & 255) / 255;
+			blueB = (colorB & 255) / 255;
+			colorC = cornerContour_io_Array2DTriGrad.get_colorC(data) | 0;
+			alphaC = (colorC >> 24 & 255) / 255;
+			redC = (colorC >> 16 & 255) / 255;
+			greenC = (colorC >> 8 & 255) / 255;
+			blueC = (colorC & 255) / 255;
+			this.arr32[j] = -(1 - 2 * cornerContour_io_Array2DTriGrad.get_ax(data) / this.width);
+			++j;
+			this.arr32[j] = 1 - 2 * cornerContour_io_Array2DTriGrad.get_ay(data) / this.height;
+			++j;
+			this.arr32[j] = redA;
+			++j;
+			this.arr32[j] = greenA;
+			++j;
+			this.arr32[j] = blueA;
+			++j;
+			this.arr32[j] = alphaA;
+			++j;
+			this.arr32[j] = -(1 - 2 * cornerContour_io_Array2DTriGrad.get_bx(data) / this.width);
+			++j;
+			this.arr32[j] = 1 - 2 * cornerContour_io_Array2DTriGrad.get_by(data) / this.height;
+			++j;
+			this.arr32[j] = redB;
+			++j;
+			this.arr32[j] = greenB;
+			++j;
+			this.arr32[j] = blueB;
+			++j;
+			this.arr32[j] = alphaB;
+			++j;
+			this.arr32[j] = -(1 - 2 * cornerContour_io_Array2DTriGrad.get_cx(data) / this.width);
+			++j;
+			this.arr32[j] = 1 - 2 * cornerContour_io_Array2DTriGrad.get_cy(data) / this.height;
+			++j;
+			this.arr32[j] = redC;
+			++j;
+			this.arr32[j] = greenC;
+			++j;
+			this.arr32[j] = blueC;
+			++j;
+			this.arr32[j] = alphaC;
+			++j;
+		}
+	}
+	,drawContours: function() {
+		haxe_Log.trace("drawContours",{ fileName : "src/cornerContourWebGLTest/SpaghettiGraffiti2point5.js.hx", lineNumber : 168, className : "cornerContourWebGLTest.SpaghettiGraffiti2point5", methodName : "drawContours"});
+		this.pen2D = new cornerContour_Pen2DGrad(-16776961,-16711936,-16776961);
+		this.pen2D.currentColor = -16776961;
+		this.pen2D.colorB = -16711936;
+		this.pen2D.colorC = -16776961;
+		this.cubicSVG();
+		this.randomTest();
+	}
+	,randomTest: function() {
+		var sketcher = new cornerContour_SketcherGrad(this.pen2D,4,0);
+		sketcher.width = 20;
+		if(sketcher.endLine == 2 || sketcher.endLine == 3) {
+			sketcher.contour.end(sketcher.width);
+		}
+		sketcher.x = 40;
+		sketcher.y = 100;
+		var l = sketcher.points.length;
+		sketcher.points[l] = [];
+		sketcher.points[l][0] = 40;
+		sketcher.points[l][1] = 100;
+		sketcher.pointsClock[sketcher.pointsClock.length] = sketcher.contour.pointsClock.slice();
+		sketcher.pointsAnti[sketcher.pointsAnti.length] = sketcher.contour.pointsAnti.slice();
+		sketcher.dim[sketcher.dim.length] = { minX : Infinity, maxX : -Infinity, minY : Infinity, maxY : -Infinity};
+		var d = sketcher.dim[sketcher.dim.length - 1];
+		if(40 < d.minX) {
+			d.minX = 40;
+		}
+		if(40 > d.maxX) {
+			d.maxX = 40;
+		}
+		if(100 < d.minY) {
+			d.minY = 100;
+		}
+		if(100 > d.maxY) {
+			d.maxY = 100;
+		}
+		sketcher.contour.reset();
+		var _g = 0;
+		while(_g < 200) {
+			var i = _g++;
+			this.randomDraw(sketcher,this.pen2D);
+		}
+	}
+	,randomDraw: function(s,p) {
+		var n = Std.random(4);
+		switch(n) {
+		case 0:
+			s.lineTo(30 + 500 * Math.random(),30 + 500 * Math.random());
+			break;
+		case 1:
+			var x1 = 30 + 500 * Math.random();
+			var y1 = 30 + 500 * Math.random();
+			var x2 = 30 + 500 * Math.random();
+			var y2 = 30 + 500 * Math.random();
+			var newx = 2 * x1 - 0.5 * (s.x + x2);
+			var newy = 2 * y1 - 0.5 * (s.y + y2);
+			s.tempArr = [];
+			var p1 = s.tempArr;
+			var ax = s.x;
+			var ay = s.y;
+			var x = ax - newx;
+			var y = ay - newy;
+			var x1 = newx - x2;
+			var y1 = newy - y2;
+			var approxDistance = Math.sqrt(x * x + y * y) + Math.sqrt(x1 * x1 + y1 * y1);
+			if(approxDistance == 0) {
+				approxDistance = 0.000001;
+			}
+			var step = Math.min(1 / (approxDistance * 0.707),cornerContour_CurveMath_quadStep);
+			var l = p1.length;
+			p1[l++] = ax;
+			p1[l++] = ay;
+			var t = step;
+			while(t < 1.) {
+				var u = 1 - t;
+				p1[l++] = Math.pow(u,2) * ax + 2 * u * t * newx + Math.pow(t,2) * x2;
+				var u1 = 1 - t;
+				p1[l++] = Math.pow(u1,2) * ay + 2 * u1 * t * newy + Math.pow(t,2) * y2;
+				t += step;
+			}
+			p1[l++] = x2;
+			p1[l++] = y2;
+			var arr = s.tempArr;
+			var withMove = false;
+			if(withMove == null) {
+				withMove = true;
+			}
+			var l = arr.length;
+			var i = 2;
+			if(withMove) {
+				var x_ = arr[0];
+				var y_ = arr[1];
+				if(s.endLine == 2 || s.endLine == 3) {
+					s.contour.end(s.width);
+				}
+				s.x = x_;
+				s.y = y_;
+				var l1 = s.points.length;
+				s.points[l1] = [];
+				s.points[l1][0] = x_;
+				s.points[l1][1] = y_;
+				s.pointsClock[s.pointsClock.length] = s.contour.pointsClock.slice();
+				s.pointsAnti[s.pointsAnti.length] = s.contour.pointsAnti.slice();
+				s.dim[s.dim.length] = { minX : Infinity, maxX : -Infinity, minY : Infinity, maxY : -Infinity};
+				var d = s.dim[s.dim.length - 1];
+				if(x_ < d.minX) {
+					d.minX = x_;
+				}
+				if(x_ > d.maxX) {
+					d.maxX = x_;
+				}
+				if(y_ < d.minY) {
+					d.minY = y_;
+				}
+				if(y_ > d.maxY) {
+					d.maxY = y_;
+				}
+				s.contour.reset();
+			} else {
+				s.lineTo(arr[0],arr[1]);
+			}
+			while(i < l) {
+				s.lineTo(arr[i],arr[i + 1]);
+				i += 2;
+			}
+			s.x = x2;
+			s.y = y2;
+			break;
+		case 2:
+			var max = 16777215;
+			p.currentColor = -16777216 + Std.random(max);
+			p.colorB = -16777216 + Std.random(max);
+			break;
+		case 3:
+			s.width = 30 + 5 * Math.random();
+			break;
+		}
+	}
+	,renderOnce: function() {
+		haxe_Log.trace("renderOnce",{ fileName : "src/cornerContourWebGLTest/SpaghettiGraffiti2point5.js.hx", lineNumber : 202, className : "cornerContourWebGLTest.SpaghettiGraffiti2point5", methodName : "renderOnce"});
+		this.mainSheet = new cornerContourWebGLTest_Sheet();
+		this.mainSheet.create(this.width,this.height,true);
+		this.gl = this.mainSheet.gl;
+		var gl = this.gl;
+		var width = this.width;
+		var height = this.height;
+		var r = 0.;
+		var g = 0.;
+		var b = 0.;
+		var a = 1.;
+		if(a == null) {
+			a = 0.;
+		}
+		if(b == null) {
+			b = 0.;
+		}
+		if(g == null) {
+			g = 0.;
+		}
+		if(r == null) {
+			r = 0.;
+		}
+		gl.clearColor(r,g,b,a);
+		gl.enable(2929);
+		gl.clear(16384);
+		gl.viewport(0,0,width,height);
+		gl.enable(3042);
+		gl.blendFunc(1,771);
+		gl.enable(2929);
+		var gl = this.gl;
+		var program = gl.createProgram();
+		var shader = gl.createShader(35633);
+		gl.shaderSource(shader,"attribute vec2 vertexPosition;" + "attribute vec4 vertexColor;" + "varying vec4 vcol;" + "void main(void) {" + " gl_Position = vec4(vertexPosition, .0, 1.0);" + " vcol = vertexColor;" + "}");
+		gl.compileShader(shader);
+		var tmp;
+		if(!gl.getShaderParameter(shader,35713)) {
+			throw haxe_Exception.thrown("Error compiling shader. " + gl.getShaderInfoLog(shader));
+		} else {
+			tmp = shader;
+		}
+		gl.attachShader(program,tmp);
+		var shader = gl.createShader(35632);
+		gl.shaderSource(shader,"precision mediump float;" + "varying vec4 vcol;" + "void main(void) {" + "vec4 color = vec4(vcol.rgb, 1. );" + "color *= vcol.a; " + "gl_FragColor = color;" + "}");
+		gl.compileShader(shader);
+		var tmp;
+		if(!gl.getShaderParameter(shader,35713)) {
+			throw haxe_Exception.thrown("Error compiling shader. " + gl.getShaderInfoLog(shader));
+		} else {
+			tmp = shader;
+		}
+		gl.attachShader(program,tmp);
+		gl.linkProgram(program);
+		var tmp;
+		if(!gl.getProgramParameter(program,35714)) {
+			throw haxe_Exception.thrown("Error linking program. " + gl.getProgramInfoLog(program));
+		} else {
+			gl.validateProgram(program);
+			if(!gl.getProgramParameter(program,35715)) {
+				throw haxe_Exception.thrown("Error validating program. " + gl.getProgramInfoLog(program));
+			} else {
+				gl.useProgram(program);
+				tmp = program;
+			}
+		}
+		this.programColor = tmp;
+		this.gl.bindBuffer(34962,null);
+		this.gl.useProgram(this.programColor);
+		var gl = this.gl;
+		var program = this.programColor;
+		var data = this.arr32;
+		var xyName = this.vertexPosition;
+		var rgbaName = this.vertexColor;
+		var isDynamic = true;
+		if(isDynamic == null) {
+			isDynamic = false;
+		}
+		var isDynamic1 = isDynamic;
+		if(isDynamic1 == null) {
+			isDynamic1 = false;
+		}
+		var buf = gl.createBuffer();
+		var staticDraw = 35044;
+		var dynamicDraw = 35048;
+		var arrayBuffer = 34962;
+		gl.bindBuffer(arrayBuffer,buf);
+		if(isDynamic1) {
+			var arrayBuffer = 34962;
+			gl.bufferData(arrayBuffer,data,dynamicDraw);
+		} else {
+			var arrayBuffer = 34962;
+			gl.bufferData(arrayBuffer,data,staticDraw);
+		}
+		var vbo = buf;
+		var inp = gl.getAttribLocation(program,xyName);
+		var elementBytes = 4;
+		var fp = 5126;
+		var strideBytes = 6 * elementBytes;
+		var offBytes = 0 * elementBytes;
+		gl.vertexAttribPointer(inp,2,fp,false,strideBytes,offBytes);
+		gl.enableVertexAttribArray(inp);
+		var inp = gl.getAttribLocation(program,rgbaName);
+		var elementBytes = 4;
+		var fp = 5126;
+		var strideBytes = 6 * elementBytes;
+		var offBytes = 2 * elementBytes;
+		gl.vertexAttribPointer(inp,4,fp,false,strideBytes,offBytes);
+		gl.enableVertexAttribArray(inp);
+		this.bufColor = vbo;
+		this.gl.bindBuffer(34962,this.bufColor);
+		this.gl.useProgram(this.programColor);
+		this.gl.drawArrays(4,0,this.bufferLength);
+	}
+	,cubicSVG: function() {
+		var sketcher = new cornerContour_SketcherGrad(this.pen2D,6,0);
+		sketcher.width = 30;
+		sketcher.colourFunction = function(colour,x,y,x_,y_) {
+			return Math.round(colour - x * y);
+		};
+		sketcher.colourFunctionB = function(colour,x,y,x_,y_) {
+			return Math.round(colour + x / y);
+		};
+		var translateContext = new justPath_transform_TranslationContext(sketcher,470,200);
+		var p = new justPath_SvgPath(translateContext);
+		p.parse(this.cubictest_d);
+	}
+};
+function cornerContourWebGLTest_SpaghettiGraffiti2point5_main() {
+	new cornerContourWebGLTest_SpaghettiGraffiti2point5();
+}
 var fracs_DifferencePreference = $hxEnums["fracs.DifferencePreference"] = { __ename__:true,__constructs__:null
 	,CLOCKWISE: {_hx_name:"CLOCKWISE",_hx_index:0,__enum__:"fracs.DifferencePreference",toString:$estr}
 	,ANTICLOCKWISE: {_hx_name:"ANTICLOCKWISE",_hx_index:1,__enum__:"fracs.DifferencePreference",toString:$estr}
@@ -16235,28 +15966,6 @@ justPath_SvgPath.prototype = {
 		return str_;
 	}
 };
-var justPath_transform_ScaleTranslateContext = function(pathContext_,dx_,dy_,sx_,sy_) {
-	this.pathContext = pathContext_;
-	this.dx = dx_;
-	this.dy = dy_;
-	this.sx = sx_;
-	this.sy = sy_;
-};
-justPath_transform_ScaleTranslateContext.__name__ = true;
-justPath_transform_ScaleTranslateContext.prototype = {
-	moveTo: function(x,y) {
-		this.pathContext.moveTo(x * this.sx + this.dx,y * this.sy + this.dy);
-	}
-	,lineTo: function(x,y) {
-		this.pathContext.lineTo(x * this.sx + this.dx,y * this.sy + this.dy);
-	}
-	,quadTo: function(x1,y1,x2,y2) {
-		this.pathContext.quadTo(x1 * this.sx + this.dx,y1 * this.sy + this.dy,x2 * this.sx + this.dx,y2 * this.sy + this.dy);
-	}
-	,curveTo: function(x1,y1,x2,y2,x3,y3) {
-		this.pathContext.curveTo(x1 * this.sx + this.dx,y1 * this.sy + this.dy,x2 * this.sx + this.dx,y2 * this.sy + this.dy,x3 * this.sx + this.dx,y3 * this.sy + this.dy);
-	}
-};
 var justPath_transform_TranslationContext = function(pathContext_,dx_,dy_) {
 	this.pathContext = pathContext_;
 	this.dx = dx_;
@@ -16283,5 +15992,5 @@ String.__name__ = true;
 Array.__name__ = true;
 js_Boot.__toStr = ({ }).toString;
 var cornerContour_CurveMath_quadStep = 0.03;
-cornerContourWebGLTest_CornerContourWebGL_main();
+cornerContourWebGLTest_SpaghettiGraffiti2point5_main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

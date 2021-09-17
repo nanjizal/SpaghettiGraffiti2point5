@@ -9,7 +9,7 @@
 -lib cornerContour
 -lib traceCount
 
--main cornerContourWebGLTest.CornerContourWebGL
+-main cornerContourWebGLTest.SpaghettiGraffiti2point5
 -D js-flatten 
 -dce full
 #--no-traces
